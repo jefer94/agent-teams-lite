@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">SDD Agent Team</h1>
   <p align="center">
-    <strong>Spec-Driven Development with AI Sub-Agents</strong>
+    <strong>Agent-Team Orchestration with AI Sub-Agents</strong>
     <br />
     <em>An orchestrator + specialized sub-agents for structured feature development.</em>
     <br />
@@ -30,25 +30,62 @@ AI coding assistants are powerful, but they struggle with complex features:
 
 ## The Solution
 
-**SDD Agent Team** is an orchestrator pattern where a lightweight coordinator delegates work to specialized sub-agents. Each sub-agent starts with fresh context, executes one focused task, and returns a compact result.
+**SDD Agent Team** is an agent-team orchestration pattern where a lightweight coordinator delegates all real work to specialized sub-agents. Each sub-agent starts with fresh context, executes one focused task, and returns a structured result.
 
 ```
 YOU: "I want to add CSV export to the app"
 
-ORCHESTRATOR (minimal context — only tracks state):
+ORCHESTRATOR (delegate-only, minimal context):
   → launches EXPLORER sub-agent     → returns: codebase analysis
   → shows you summary, you approve
-  → launches PROPOSER sub-agent     → returns: proposal.md created
-  → launches SPEC WRITER sub-agent  → returns: specs with scenarios
-  → launches DESIGNER sub-agent     → returns: design.md with decisions
-  → launches TASK PLANNER sub-agent → returns: tasks.md with checklist
+  → launches PROPOSER sub-agent     → returns: proposal artifact
+  → launches SPEC WRITER sub-agent  → returns: spec artifact
+  → launches DESIGNER sub-agent     → returns: design artifact
+  → launches TASK PLANNER sub-agent → returns: tasks artifact
   → shows you everything, you approve
   → launches IMPLEMENTER sub-agent  → returns: code written, tasks checked off
-  → launches VERIFIER sub-agent     → returns: verification report
-  → launches ARCHIVER sub-agent     → returns: specs merged, change archived
+  → launches VERIFIER sub-agent     → returns: verification artifact
+  → launches ARCHIVER sub-agent     → returns: change closed
 ```
 
-**The key insight**: the orchestrator NEVER reads code, NEVER writes files. It only coordinates. Each sub-agent is born with fresh context, does its job, and dies. Minimal context window usage. Maximum quality.
+**The key insight**: the orchestrator NEVER does phase work directly. It only coordinates sub-agents, tracks state, and synthesizes summaries. This keeps the main thread small and stable.
+
+### Persistence Is Pluggable
+
+The workflow engine is storage-agnostic. Artifacts can be persisted in:
+
+- `engram` (recommended default) — https://github.com/gentleman-programming/engram
+- `openspec` (file-based, optional)
+- `none` (ephemeral, no persistence)
+
+Default policy is conservative:
+
+- If user explicitly asks for files, use `openspec`
+- Else if Engram is available, persist to Engram (recommended)
+- Else if project already has `openspec/`, continue using it
+- Else use `none` (no writes)
+
+### Quick Modes
+
+Recommended defaults by use case:
+
+```yaml
+# Agent-team storage policy
+artifact_store:
+  mode: engram      # Recommended: persistent, repo-clean
+```
+
+```yaml
+# Privacy/local-only (no persistence)
+artifact_store:
+  mode: none
+```
+
+```yaml
+# File artifacts in project (OpenSpec flow)
+artifact_store:
+  mode: openspec
+```
 
 ---
 
@@ -117,9 +154,32 @@ ORCHESTRATOR (minimal context — only tracks state):
                close change)
 ```
 
-### What Gets Created
+### Sub-Agent Result Contract
 
-Every change produces a self-contained folder:
+Each sub-agent should return a structured payload with variable depth:
+
+```json
+{
+  "status": "ok | warning | blocked | failed",
+  "executive_summary": "short decision-grade summary",
+  "detailed_report": "optional long-form analysis when needed",
+  "artifacts": [
+    {
+      "name": "design",
+      "store": "engram | openspec | none",
+      "ref": "observation-id | file-path | null"
+    }
+  ],
+  "next_recommended": ["tasks"],
+  "risks": ["optional risk list"]
+}
+```
+
+`executive_summary` is intentionally short. `detailed_report` can be as long as needed for complex architecture work.
+
+### Artifact Persistence (Optional)
+
+When `openspec` mode is enabled, a change can produce a self-contained folder:
 
 ```
 openspec/
@@ -179,14 +239,14 @@ Or let it detect automatically — describe a substantial feature and the orches
 
 | Command | What It Does |
 |---------|-------------|
-| `/sdd:init` | Bootstrap `openspec/` directory in current project. Detects stack, creates config. |
+| `/sdd:init` | Initialize orchestration context. Creates `openspec/` only when persistence mode resolves to `openspec`. |
 | `/sdd:explore <topic>` | Investigate an idea. Reads codebase, compares approaches. No files created. |
-| `/sdd:new <name>` | Start a new change. Creates change folder + proposal. |
-| `/sdd:continue` | Create the next artifact based on what's ready (dependency-aware). |
-| `/sdd:ff <name>` | Fast-forward — create ALL planning artifacts at once (proposal → specs → design → tasks). |
+| `/sdd:new <name>` | Start a new change by delegating exploration + proposal to sub-agents. |
+| `/sdd:continue` | Run the next dependency-ready phase via sub-agent(s). |
+| `/sdd:ff <name>` | Fast-forward planning with sub-agents (proposal → specs → design → tasks). |
 | `/sdd:apply` | Implement tasks in batches. Checks off items in `tasks.md` as it goes. |
 | `/sdd:verify` | Validate implementation against specs. Reports CRITICAL / WARNING / SUGGESTION. |
-| `/sdd:archive` | Merge delta specs into main specs, move change to archive. |
+| `/sdd:archive` | Close a change and persist final state in the active artifact store. |
 
 ### Example Flow
 
@@ -244,6 +304,11 @@ Each sub-agent is a SKILL.md file — pure Markdown instructions that any AI ass
 
 ## Installation
 
+For a full Agent Teams setup, users should configure these two files:
+
+- Claude Code: `~/.claude/CLAUDE.md` (append `examples/claude-code/CLAUDE.md`)
+- OpenCode: `~/.config/opencode/opencode.json` (merge `agent.sdd-orchestrator` from `examples/opencode/opencode.json`)
+
 ### Claude Code
 
 **1. Copy skills:**
@@ -259,6 +324,8 @@ cp -r skills/sdd-* ~/.claude/skills/
 **2. Add orchestrator to `~/.claude/CLAUDE.md`:**
 
 Append the contents of [`examples/claude-code/CLAUDE.md`](examples/claude-code/CLAUDE.md) to your existing `CLAUDE.md`.
+
+This keeps your existing assistant identity and adds SDD as an orchestration overlay.
 
 The orchestrator instructions teach Claude Code to:
 - Detect SDD triggers (`/sdd:new`, feature descriptions, etc.)
@@ -292,9 +359,20 @@ You can either:
 - **Add it to your existing agent** (e.g., append SDD orchestrator instructions to your primary agent's prompt)
 - **Create a dedicated agent** (copy the `sdd-orchestrator` agent definition as-is)
 
+Recommended OpenCode setup:
+- Keep your everyday assistant (e.g., `gentleman`) as `primary`
+- Set `sdd-orchestrator` to `all`
+- Select `sdd-orchestrator` only when you want SDD workflows
+
 **3. Verify:**
 
 Open OpenCode and type `/sdd:init` — it should recognize the command.
+
+How to use in OpenCode:
+- Start OpenCode in your project: `opencode .`
+- Use the agent picker (Tab) and choose `sdd-orchestrator`
+- Run SDD commands (`/sdd:init`, `/sdd:new <name>`, `/sdd:continue`, etc.)
+- Switch back to your normal agent (Tab) for day-to-day coding
 
 ---
 

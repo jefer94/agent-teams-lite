@@ -22,6 +22,17 @@ From the orchestrator:
 - The `design.md` content
 - Project config from `openspec/config.yaml`
 
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not create or modify project files; return result only.
+- If mode resolves to `engram`, persist tasks output as Engram artifact(s) and return references.
+- If mode resolves to `openspec`, use the file paths defined in this skill.
+
 ## What to Do
 
 ### Step 1: Analyze the Design
@@ -141,4 +152,5 @@ Ready for implementation (sdd-apply).
 - Use hierarchical numbering: 1.1, 1.2, 2.1, 2.2, etc.
 - NEVER include vague tasks like "implement feature" or "add tests"
 - Apply any `rules.tasks` from `openspec/config.yaml`
-- If the TDD skill applies, integrate test-first tasks: RED task → GREEN task → REFACTOR task
+- If the project uses TDD, integrate test-first tasks: RED task (write failing test) → GREEN task (make it pass) → REFACTOR task (clean up)
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

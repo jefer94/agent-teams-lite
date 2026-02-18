@@ -21,6 +21,17 @@ From the orchestrator:
 - Existing specs from `openspec/specs/` (if any exist for affected domains)
 - Project config from `openspec/config.yaml`
 
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not create or modify project files; return result only.
+- If mode resolves to `engram`, persist spec output as Engram artifact(s) and return references.
+- If mode resolves to `openspec`, use the file paths defined in this skill.
+
 ## What to Do
 
 ### Step 1: Identify Affected Domains
@@ -133,7 +144,7 @@ Return to the orchestrator:
 - Error states: {covered/missing}
 
 ### Next Step
-Ready for design (sdd-design) or tasks (sdd-tasks).
+Ready for design (sdd-design). If design already exists, ready for tasks (sdd-tasks).
 ```
 
 ## Rules
@@ -147,6 +158,7 @@ Ready for design (sdd-design) or tasks (sdd-tasks).
 - Keep scenarios TESTABLE — someone should be able to write an automated test from each one
 - DO NOT include implementation details in specs — specs describe WHAT, not HOW
 - Apply any `rules.specs` from `openspec/config.yaml`
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`
 
 ## RFC 2119 Keywords Quick Reference
 

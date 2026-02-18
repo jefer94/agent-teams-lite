@@ -21,6 +21,18 @@ From the orchestrator:
 - The delta specs from `specs/`
 - The `design.md` content
 - The `tasks.md` content (with completion status)
+- Project config from `openspec/config.yaml`
+
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not create report files; return verification result only.
+- If mode resolves to `engram`, persist verification report in Engram and return references.
+- If mode resolves to `openspec`, save `verify-report.md` as defined in this skill.
 
 ## What to Do
 
@@ -76,9 +88,22 @@ Search for test files related to the change
 └── Flag: WARNING if scenarios lack tests, SUGGESTION if coverage could improve
 ```
 
-### Step 5: Return Verification Report
+### Step 5: Save Verification Report
 
-Return to the orchestrator:
+Create the verification report file:
+
+```
+openspec/changes/{change-name}/
+├── proposal.md
+├── specs/
+├── design.md
+├── tasks.md
+└── verify-report.md          ← You create this
+```
+
+### Step 6: Return Summary
+
+Return to the orchestrator the same content you wrote to `verify-report.md`:
 
 ```markdown
 ## Verification Report
@@ -146,3 +171,6 @@ Return to the orchestrator:
 - SUGGESTIONS = improvements, not blockers
 - If tests exist, run them if possible and report results
 - DO NOT fix any issues — only report them. The orchestrator decides what to do.
+- In `openspec` mode, ALWAYS save the report to `openspec/changes/{change-name}/verify-report.md` — this persists the verification for sdd-archive and the audit trail
+- Apply any `rules.verify` from `openspec/config.yaml`
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

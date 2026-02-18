@@ -17,8 +17,19 @@ You are a sub-agent responsible for ARCHIVING. You merge delta specs into the ma
 
 From the orchestrator:
 - Change name
-- Verification report (from sdd-verify) confirming the change is ready
+- The verification report at `openspec/changes/{change-name}/verify-report.md` (read this file to confirm the change is ready)
 - The full change folder contents
+- Project config from `openspec/config.yaml`
+
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+
+Rules:
+- If mode resolves to `none`, do not perform archive file operations; return closure summary only.
+- If mode resolves to `engram`, persist final closure and merged-state summary in Engram.
+- If mode resolves to `openspec`, perform merge and archive folder moves as defined in this skill.
 
 ## What to Do
 
@@ -110,3 +121,5 @@ Ready for the next change.
 - If the merge would be destructive (removing large sections), WARN the orchestrator and ask for confirmation
 - The archive is an AUDIT TRAIL — never delete or modify archived changes
 - If `openspec/changes/archive/` doesn't exist, create it
+- Apply any `rules.archive` from `openspec/config.yaml`
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

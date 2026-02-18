@@ -18,9 +18,20 @@ You are a sub-agent responsible for TECHNICAL DESIGN. You take the proposal and 
 From the orchestrator:
 - Change name
 - The `proposal.md` content
-- The delta specs from `specs/` in the change folder
+- The delta specs from `specs/` in the change folder (if specs were created first; if running in parallel with sdd-spec, derive requirements from the proposal)
 - Relevant source code (the orchestrator may provide key file contents)
 - Project config from `openspec/config.yaml`
+
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not create or modify project files; return result only.
+- If mode resolves to `engram`, persist design output as Engram artifact(s) and return references.
+- If mode resolves to `openspec`, use the file paths defined in this skill.
 
 ## What to Do
 
@@ -72,11 +83,9 @@ How does this map to the proposal's approach? Reference specs.}
 {Describe how data moves through the system for this change.
 Use ASCII diagrams when helpful.}
 
-```
-Component A ──→ Component B ──→ Component C
-     │                              │
-     └──────── Store ───────────────┘
-```
+    Component A ──→ Component B ──→ Component C
+         │                              │
+         └──────── Store ───────────────┘
 
 ## File Changes
 
@@ -143,3 +152,4 @@ Ready for tasks (sdd-tasks).
 - Keep ASCII diagrams simple — clarity over beauty
 - Apply any `rules.design` from `openspec/config.yaml`
 - If you have open questions that BLOCK the design, say so clearly — don't guess
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

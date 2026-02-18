@@ -40,6 +40,13 @@ print_error() {
     echo -e "  ${RED}✗${NC} $1"
 }
 
+print_engram_note() {
+    echo -e "\n${YELLOW}Recommended persistence backend:${NC} ${BOLD}Engram${NC}"
+    echo -e "  ${CYAN}https://github.com/gentleman-programming/engram${NC}"
+    echo -e "  Default recommendation: set ${BOLD}artifact_store.mode: engram${NC} in your orchestrator config"
+    echo -e "  If Engram is unavailable, use ${BOLD}artifact_store.mode: auto${NC} (fallback: openspec or none)"
+}
+
 install_skills() {
     local target_dir="$1"
     local tool_name="$2"
@@ -55,7 +62,7 @@ install_skills() {
         mkdir -p "$target_dir/$skill_name"
         cp "$skill_dir/SKILL.md" "$target_dir/$skill_name/SKILL.md"
         print_skill "$skill_name"
-        ((count++))
+        count=$((count + 1))
     done
     
     echo -e "\n  ${GREEN}${BOLD}$count skills installed${NC} → $target_dir"
@@ -117,3 +124,5 @@ case $choice in
 esac
 
 echo -e "\n${GREEN}${BOLD}Done!${NC} Start using SDD with: ${CYAN}/sdd:init${NC} in your project\n"
+print_engram_note
+echo ""

@@ -21,6 +21,18 @@ From the orchestrator:
 - Project config from `openspec/config.yaml` (if exists)
 - Any existing specs from `openspec/specs/` relevant to this change
 
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not create or modify project files; return result only.
+- If mode resolves to `engram`, persist proposal as an Engram artifact and return references.
+- If mode resolves to `openspec`, use the file paths defined in this skill.
+- Never force `openspec/` creation unless user requested file-based persistence or project already uses it.
+
 ## What to Do
 
 ### Step 1: Create Change Directory
@@ -110,10 +122,11 @@ Ready for specs (sdd-spec) or design (sdd-design).
 
 ## Rules
 
-- ALWAYS create the proposal.md file
+- In `openspec` mode, ALWAYS create the `proposal.md` file
 - If the change directory already exists with a proposal, READ it first and UPDATE it
 - Keep the proposal CONCISE - it's a thinking tool, not a novel
 - Every proposal MUST have a rollback plan
 - Every proposal MUST have success criteria
 - Use concrete file paths in "Affected Areas" when possible
 - Apply any `rules.proposal` from `openspec/config.yaml`
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

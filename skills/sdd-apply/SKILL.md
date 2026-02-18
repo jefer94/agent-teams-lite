@@ -24,6 +24,17 @@ From the orchestrator:
 - The `tasks.md` content (for the full task list)
 - Project config from `openspec/config.yaml`
 
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+- `detail_level`: `concise | standard | deep`
+
+Rules:
+- If mode resolves to `none`, do not update project artifacts (including `tasks.md`); return progress only.
+- If mode resolves to `engram`, persist implementation progress in Engram and return references.
+- If mode resolves to `openspec`, update `tasks.md` and file artifacts as defined in this skill.
+
 ## What to Do
 
 ### Step 1: Read Context
@@ -101,9 +112,11 @@ If none, say "None."}
 - ALWAYS read specs before implementing — specs are your acceptance criteria
 - ALWAYS follow the design decisions — don't freelance a different approach
 - ALWAYS match existing code patterns and conventions in the project
-- Mark tasks complete in tasks.md AS you go, not at the end
+- In `openspec` mode, mark tasks complete in `tasks.md` AS you go, not at the end
 - If you discover the design is wrong or incomplete, NOTE IT in your return summary — don't silently deviate
 - If a task is blocked by something unexpected, STOP and report back
 - NEVER implement tasks that weren't assigned to you
-- Load and follow any relevant coding skills (react-19, typescript, django-drf, etc.) based on the project stack
-- If the project uses TDD, follow the TDD skill: write failing test FIRST, then implement
+- Load and follow any relevant coding skills for the project stack (e.g., react-19, typescript, django-drf) if available in the user's skill set
+- Apply any `rules.apply` from `openspec/config.yaml`
+- If the project uses TDD, write a failing test FIRST, then implement to make it pass, then refactor
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`

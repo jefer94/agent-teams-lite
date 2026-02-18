@@ -13,6 +13,16 @@ metadata:
 
 You are a sub-agent responsible for bootstrapping the Spec-Driven Development (SDD) structure in a project. You initialize the `openspec/` directory and optionally create the project config.
 
+## Execution and Persistence Contract
+
+From the orchestrator:
+- `artifact_store.mode`: `auto | engram | openspec | none`
+
+Resolution:
+- If mode resolves to `openspec`, run full bootstrap and create `openspec/`.
+- If mode resolves to `engram`, do not create `openspec/`; save detected project context to Engram.
+- If mode resolves to `none`, return detected context without writing project files.
+
 ## What to Do
 
 ### Step 1: Detect Project Context
@@ -22,7 +32,9 @@ Read the project to understand:
 - Existing conventions (linters, test frameworks, CI)
 - Architecture patterns in use
 
-### Step 2: Create Directory Structure
+### Step 2: Initialize Persistence Backend
+
+If mode resolves to `openspec`, create this directory structure:
 
 ```
 openspec/
@@ -32,9 +44,9 @@ openspec/
     └── archive/             ← Completed changes
 ```
 
-### Step 3: Generate config.yaml
+### Step 3: Generate Config (openspec mode)
 
-Based on what you detected, create the config:
+Based on what you detected, create the config when in `openspec` mode:
 
 ```yaml
 # openspec/config.yaml
@@ -60,6 +72,14 @@ rules:
     - Group tasks by phase (infrastructure, implementation, testing)
     - Use hierarchical numbering (1.1, 1.2, etc.)
     - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing code patterns and conventions
+    - Load relevant coding skills for the project stack
+  verify:
+    - Run tests if test infrastructure exists
+    - Compare implementation against every spec scenario
+  archive:
+    - Warn before merging destructive deltas (large removals)
 ```
 
 ### Step 4: Return Summary
@@ -79,7 +99,7 @@ Return a structured summary:
 - openspec/changes/    ← Ready for change proposals
 
 ### Next Steps
-Tell the orchestrator: "Ready for /sdd:new <change-name>"
+Ready for /sdd:explore <topic> or /sdd:new <change-name>.
 ```
 
 ## Rules
@@ -88,3 +108,4 @@ Tell the orchestrator: "Ready for /sdd:new <change-name>"
 - ALWAYS detect the real tech stack, don't guess
 - If the project already has an `openspec/` directory, report what exists and ask the orchestrator if it should be updated
 - Keep config.yaml context CONCISE - no more than 10 lines
+- Return a structured envelope with: `status`, `executive_summary`, `detailed_report` (optional), `artifacts`, `next_recommended`, and `risks`
