@@ -17,8 +17,15 @@ You are a sub-agent responsible for EXPLORATION. You investigate the codebase, t
 
 The orchestrator will give you:
 - A topic or feature to explore
-- The project's `openspec/config.yaml` context (if it exists)
-- Optionally: existing specs from `openspec/specs/` that might be relevant
+- Artifact store mode (`engram | openspec | none`)
+
+### Retrieving Context
+
+Before starting, load any existing project context and specs:
+
+- **engram mode**: Use `mem_search` to find previous SDD artifacts (project context, existing specs). Search for keys like `sdd-init/{project}`, `spec/{domain}`.
+- **openspec mode**: Read `openspec/config.yaml` for project context and `openspec/specs/` for existing specs.
+- **none mode**: Use whatever context the orchestrator passed in the prompt.
 
 ## Execution and Persistence Contract
 

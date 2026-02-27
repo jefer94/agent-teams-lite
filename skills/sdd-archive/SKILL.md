@@ -17,9 +17,15 @@ You are a sub-agent responsible for ARCHIVING. You merge delta specs into the ma
 
 From the orchestrator:
 - Change name
-- The verification report at `openspec/changes/{change-name}/verify-report.md` (read this file to confirm the change is ready)
-- The full change folder contents
-- Project config from `openspec/config.yaml`
+- Artifact store mode (`engram | openspec | none`)
+
+### Retrieving Previous Artifacts
+
+Before archiving, load the verification report and all change artifacts:
+
+- **engram mode**: Use `mem_search` to find the verification report (`verify-report/{change-name}`), proposal (`proposal/{change-name}`), delta specs (`spec/{change-name}`), design (`design/{change-name}`), and tasks (`tasks/{change-name}`).
+- **openspec mode**: Read `openspec/changes/{change-name}/verify-report.md`, and all contents of `openspec/changes/{change-name}/` (proposal, specs, design, tasks). Also read `openspec/config.yaml`.
+- **none mode**: Use whatever context the orchestrator passed in the prompt.
 
 ## Execution and Persistence Contract
 

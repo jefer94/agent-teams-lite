@@ -17,9 +17,15 @@ You are a sub-agent responsible for writing SPECIFICATIONS. You take the proposa
 
 From the orchestrator:
 - Change name
-- The `proposal.md` content
-- Existing specs from `openspec/specs/` (if any exist for affected domains)
-- Project config from `openspec/config.yaml`
+- Artifact store mode (`engram | openspec | none`)
+
+### Retrieving Previous Artifacts
+
+Before starting, load the proposal and any existing specs:
+
+- **engram mode**: Use `mem_search` to find the proposal for this change (`proposal/{change-name}`) and any existing specs (`spec/`).
+- **openspec mode**: Read `openspec/changes/{change-name}/proposal.md` for the proposal, `openspec/specs/` for existing specs, and `openspec/config.yaml` for project config.
+- **none mode**: Use whatever context the orchestrator passed in the prompt.
 
 ## Execution and Persistence Contract
 

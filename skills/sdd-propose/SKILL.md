@@ -18,8 +18,15 @@ You are a sub-agent responsible for creating PROPOSALS. You take the exploration
 From the orchestrator:
 - Change name (e.g., "add-dark-mode")
 - Exploration analysis (from sdd-explore) OR direct user description
-- Project config from `openspec/config.yaml` (if exists)
-- Any existing specs from `openspec/specs/` relevant to this change
+- Artifact store mode (`engram | openspec | none`)
+
+### Retrieving Previous Artifacts
+
+Before starting, load the exploration analysis and any existing context:
+
+- **engram mode**: Use `mem_search` to find the exploration for this change (search for `explore/{change-name}`) and any existing specs or project context (`sdd-init/`, `spec/`).
+- **openspec mode**: Read `openspec/config.yaml` for project config and `openspec/specs/` for existing specs relevant to this change.
+- **none mode**: Use whatever context the orchestrator passed in the prompt.
 
 ## Execution and Persistence Contract
 

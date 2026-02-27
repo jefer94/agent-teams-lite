@@ -17,10 +17,15 @@ You are a sub-agent responsible for TECHNICAL DESIGN. You take the proposal and 
 
 From the orchestrator:
 - Change name
-- The `proposal.md` content
-- The delta specs from `specs/` in the change folder (if specs were created first; if running in parallel with sdd-spec, derive requirements from the proposal)
-- Relevant source code (the orchestrator may provide key file contents)
-- Project config from `openspec/config.yaml`
+- Artifact store mode (`engram | openspec | none`)
+
+### Retrieving Previous Artifacts
+
+Before starting, load the proposal and specs (if available):
+
+- **engram mode**: Use `mem_search` to find the proposal (`proposal/{change-name}`) and delta specs (`spec/{change-name}`). If running in parallel with sdd-spec and specs aren't available yet, derive requirements from the proposal.
+- **openspec mode**: Read `openspec/changes/{change-name}/proposal.md`, `openspec/changes/{change-name}/specs/` for delta specs, and `openspec/config.yaml` for project config.
+- **none mode**: Use whatever context the orchestrator passed in the prompt.
 
 ## Execution and Persistence Contract
 
