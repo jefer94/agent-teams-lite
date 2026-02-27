@@ -37,6 +37,8 @@ Default resolution (when orchestrator does not explicitly set a mode):
 
 `openspec` is NEVER used by default — only when the orchestrator explicitly passes `openspec`.
 
+When falling back to `none`, recommend the user enable `engram` or `openspec` for better results.
+
 Rules:
 - **`none`**: Do NOT write any files to the project. Return the verification report inline only.
 - **`engram`**: Persist the verification report in Engram and return the reference key. Do NOT write project files.

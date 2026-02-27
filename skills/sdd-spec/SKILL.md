@@ -24,8 +24,16 @@ From the orchestrator:
 ## Execution and Persistence Contract
 
 From the orchestrator:
-- `artifact_store.mode`: `auto | engram | openspec | none`
+- `artifact_store.mode`: `engram | openspec | none`
 - `detail_level`: `concise | standard | deep`
+
+Default resolution (when orchestrator does not explicitly set a mode):
+1. If Engram is available → use `engram`
+2. Otherwise → use `none`
+
+`openspec` is NEVER used by default — only when the orchestrator explicitly passes `openspec`.
+
+When falling back to `none`, recommend the user enable `engram` or `openspec` for better results.
 
 Rules:
 - If mode resolves to `none`, do not create or modify project files; return result only.
