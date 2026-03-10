@@ -19,14 +19,39 @@ Static analysis alone is NOT enough. You must execute the code.
 
 From the orchestrator:
 - Change name
-- Artifact store mode (`engram | openspec | none`)
+- Artifact store mode (`engram | openspec | hybrid | none`)
 
 ## Execution and Persistence Contract
 
 Read and follow `skills/_shared/persistence-contract.md` for mode resolution rules.
 
-- If mode is `engram`: Read and follow `skills/_shared/engram-convention.md`. Artifact type: `verify-report`. Retrieve `proposal`, `spec`, `design`, and `tasks` as dependencies.
+- If mode is `engram`:
+
+  **Read dependencies** (two-step — search returns truncated previews):
+  1. `mem_search(query: "sdd/{change-name}/proposal", project: "{project}")` → get ID
+  2. `mem_get_observation(id: {id})` → full proposal
+  3. `mem_search(query: "sdd/{change-name}/spec", project: "{project}")` → get ID
+  4. `mem_get_observation(id: {id})` → full spec (REQUIRED for compliance matrix)
+  5. `mem_search(query: "sdd/{change-name}/design", project: "{project}")` → get ID
+  6. `mem_get_observation(id: {id})` → full design
+  7. `mem_search(query: "sdd/{change-name}/tasks", project: "{project}")` → get ID
+  8. `mem_get_observation(id: {id})` → full tasks
+
+  **Save your artifact**:
+  ```
+  mem_save(
+    title: "sdd/{change-name}/verify-report",
+    topic_key: "sdd/{change-name}/verify-report",
+    type: "architecture",
+    project: "{project}",
+    content: "{your full verification report markdown}"
+  )
+  ```
+  `topic_key` enables upserts — saving again updates, not duplicates.
+
+  (See `skills/_shared/engram-convention.md` for full naming conventions.)
 - If mode is `openspec`: Read and follow `skills/_shared/openspec-convention.md`. Save to `openspec/changes/{change-name}/verify-report.md`.
+- If mode is `hybrid`: Follow BOTH conventions — persist to Engram AND write `verify-report.md` to filesystem.
 - If mode is `none`: Return the verification report inline only. Never write files.
 
 ## What to Do
